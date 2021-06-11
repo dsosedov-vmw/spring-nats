@@ -28,6 +28,7 @@ public class UpperCaseTransformer {
 	@StreamListener(Processor.INPUT)
 	@SendTo(Processor.OUTPUT)
 	public Object transform(Object message) {
+		System.out.println(message);
 		if (message instanceof byte[]) {
 			String value = new String((byte[]) message, StandardCharsets.UTF_8);
 			message = value.toUpperCase().getBytes(StandardCharsets.UTF_8);

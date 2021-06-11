@@ -8,3 +8,7 @@ spring:
         output:
           destination: dataOut
           binder: nats
+
+nats:
+  spring:
+    server: nats://localhost:4222
