@@ -30,13 +30,54 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import io.nats.client.Nats;
-import io.nats.client.Options;
-
+import io.nats.streaming.Options;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 @ConditionalOnClass({ Options.class })
 public class NatsConnectionProperties {
+
+	private String natsUrl;
+	private String clusterId;
+	private String clientId;
+
+	public String getNatsUrl() {
+		return this.natsUrl;
+	}
+
+	public void setNatsUrl(String natsUrl) {
+		this.natsUrl = natsUrl;
+	}
+
+	public String getClusterId() {
+		return this.clusterId;
+	}
+
+	public void setClusterId(String clusterId) {
+		this.clusterId = clusterId;
+	}
+
+	public String getClientId() {
+		return this.clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public NatsConnectionProperties natsUrl(String natsUrl) {
+		this.natsUrl = natsUrl;
+		return this;
+	}
+
+	public NatsConnectionProperties clusterId(String clusterId) {
+		this.clusterId = clusterId;
+		return this;
+	}
+
+	public NatsConnectionProperties clientId(String clientId) {
+		this.clientId = clientId;
+		return this;
+	}
 
 	/**
 	 * URL for the nats server, can be a comma separated list.
@@ -51,34 +92,34 @@ public class NatsConnectionProperties {
 	/**
 	 * Maximum reconnect attempts if a connection is lost, after the initial connection.
 	 */
-	private int maxReconnect = Options.DEFAULT_MAX_RECONNECT;
+	//private int maxReconnect = Options.DEFAULT_MAX_RECONNECT;
 
 	/**
 	 * Time to wait between reconnect attempts to the same server url.
 	 */
-	private Duration reconnectWait = Options.DEFAULT_RECONNECT_WAIT;
+	//private Duration reconnectWait = Options.DEFAULT_RECONNECT_WAIT;
 
 	/**
 	 * Timeout for the initial connection, if this time is passed, the connection will fail
 	 * and no reconnect attempts are made.
 	 */
-	private Duration connectionTimeout = Options.DEFAULT_CONNECTION_TIMEOUT;
+	//private Duration connectionTimeout = Options.DEFAULT_CONNECTION_TIMEOUT;
 
 	/**
 	 * Time between pings to the server to check "liveness".
 	 */
-	private Duration pingInterval = Options.DEFAULT_PING_INTERVAL;
+	//private Duration pingInterval = Options.DEFAULT_PING_INTERVAL;
 
 	/**
 	 * Size of the buffer, in bytes, used to hold outgoing messages during reconnect.
 	 */
-	private long reconnectBufferSize = Options.DEFAULT_RECONNECT_BUF_SIZE;
+	//private long reconnectBufferSize = Options.DEFAULT_RECONNECT_BUF_SIZE;
 
 	/**
 	 * Prefix to use for inboxes, generally the default is used but custom prefixes
 	 * can allow security controls.
 	 */
-	private String inboxPrefix = Options.DEFAULT_INBOX_PREFIX;
+	//private String inboxPrefix = Options.DEFAULT_INBOX_PREFIX;
 
 	/**
 	 * Whether or not the server will send messages sent from this connection back to the connection.
@@ -174,72 +215,72 @@ public class NatsConnectionProperties {
 	/**
 	 * @return maximum times to try to reconnect
 	 */
-	public int getMaxReconnect() {
-		return this.maxReconnect;
-	}
+//	public int getMaxReconnect() {
+//		return this.maxReconnect;
+//	}
 
 	/**
 	 * @param maxReconnect maximum times to try to reconnect
 	 */
-	public void setMaxReconnect(int maxReconnect) {
-		this.maxReconnect = maxReconnect;
-	}
+//	public void setMaxReconnect(int maxReconnect) {
+//		this.maxReconnect = maxReconnect;
+//	}
 
 	/**
 	 * @return time to wait between reconnect attempts on the same server url
 	 */
-	public Duration getReconnectWait() {
-		return this.reconnectWait;
-	}
+//	public Duration getReconnectWait() {
+//		return this.reconnectWait;
+//	}
 
 	/**
 	 * @param reconnectWait time to wait between reconnect attempts on the same server url
 	 */
-	public void setReconnectWait(Duration reconnectWait) {
-		this.reconnectWait = reconnectWait;
-	}
+//	public void setReconnectWait(Duration reconnectWait) {
+//		this.reconnectWait = reconnectWait;
+//	}
 
 	/**
 	 * @return maximum time for initial connection
 	 */
-	public Duration getConnectionTimeout() {
-		return this.connectionTimeout;
-	}
+//	public Duration getConnectionTimeout() {
+//		return this.connectionTimeout;
+//	}
 
 	/**
 	 * @param connectionTimeout maximum time for initial connection
 	 */
-	public void setConnectionTimeout(Duration connectionTimeout) {
-		this.connectionTimeout = connectionTimeout;
-	}
+//	public void setConnectionTimeout(Duration connectionTimeout) {
+//		this.connectionTimeout = connectionTimeout;
+//	}
 
 	/**
 	 * @return time between server pings
 	 */
-	public Duration getPingInterval() {
-		return this.pingInterval;
-	}
+//	public Duration getPingInterval() {
+//		return this.pingInterval;
+//	}
 
 	/**
 	 * @param pingInterval time between server pings
 	 */
-	public void setPingInterval(Duration pingInterval) {
-		this.pingInterval = pingInterval;
-	}
+//	public void setPingInterval(Duration pingInterval) {
+//		this.pingInterval = pingInterval;
+//	}
 
 	/**
 	 * @return size of the buffer, in bytes, used to store publish messages during reconnect
 	 */
-	public long getReconnectBufferSize() {
-		return this.reconnectBufferSize;
-	}
+//	public long getReconnectBufferSize() {
+//		return this.reconnectBufferSize;
+//	}
 
 	/**
 	 * @param reconnectBufferSize size of the buffer, in bytes, used to store publish messages during reconnect
 	 */
-	public void setReconnectBufferSize(long reconnectBufferSize) {
-		this.reconnectBufferSize = reconnectBufferSize;
-	}
+//	public void setReconnectBufferSize(long reconnectBufferSize) {
+//		this.reconnectBufferSize = reconnectBufferSize;
+//	}
 
 	/**
 	 * @return username to use with password for authenticaiton
@@ -286,17 +327,17 @@ public class NatsConnectionProperties {
 	/**
 	 * @return prefix to use for request/reply inboxes
 	 */
-	public String getInboxPrefix() {
-		return this.inboxPrefix;
-	}
+//	public String getInboxPrefix() {
+//		return this.inboxPrefix;
+//	}
 
 
 	/**
 	 * @param inboxPrefix custom prefix to use for request/reply inboxes
 	 */
-	public void setInboxPrefix(String inboxPrefix) {
-		this.inboxPrefix = inboxPrefix;
-	}
+//	public void setInboxPrefix(String inboxPrefix) {
+//		this.inboxPrefix = inboxPrefix;
+//	}
 
 	/**
 	 * @return whether or not to block echo messages, messages that were sent by this connection
@@ -460,46 +501,46 @@ public class NatsConnectionProperties {
 	 * @param maxReconnect limit on the number of reconnect attempts to make, per disconnect
 	 * @return chainable properties
 	 */
-	public NatsConnectionProperties maxReconnect(int maxReconnect) {
-		this.maxReconnect = maxReconnect;
-		return this;
-	}
+//	public NatsConnectionProperties maxReconnect(int maxReconnect) {
+//		this.maxReconnect = maxReconnect;
+//		return this;
+//	}
 
 	/**
 	 * @param reconnectWait time to wait between reconnect attempts to the same server url
 	 * @return chainable properties
 	 */
-	public NatsConnectionProperties reconnectWait(Duration reconnectWait) {
-		this.reconnectWait = reconnectWait;
-		return this;
-	}
+//	public NatsConnectionProperties reconnectWait(Duration reconnectWait) {
+//		this.reconnectWait = reconnectWait;
+//		return this;
+//	}
 
 	/**
 	 * @param connectionTimeout maximum time to allow the initial connection to take
 	 * @return chainable properties
 	 */
-	public NatsConnectionProperties connectionTimeout(Duration connectionTimeout) {
-		this.connectionTimeout = connectionTimeout;
-		return this;
-	}
+//	public NatsConnectionProperties connectionTimeout(Duration connectionTimeout) {
+//		this.connectionTimeout = connectionTimeout;
+//		return this;
+//	}
 
 	/**
 	 * @param pingInterval time between heartbeat pings to the server
 	 * @return chainable properties
 	 */
-	public NatsConnectionProperties pingInterval(Duration pingInterval) {
-		this.pingInterval = pingInterval;
-		return this;
-	}
+//	public NatsConnectionProperties pingInterval(Duration pingInterval) {
+//		this.pingInterval = pingInterval;
+//		return this;
+//	}
 
 	/**
 	 * @param reconnectBufferSize size, in bytes, of the buffer used to store outgoing messages during reconnect
 	 * @return chainable properties
 	 */
-	public NatsConnectionProperties reconnectBufferSize(long reconnectBufferSize) {
-		this.reconnectBufferSize = reconnectBufferSize;
-		return this;
-	}
+//	public NatsConnectionProperties reconnectBufferSize(long reconnectBufferSize) {
+//		this.reconnectBufferSize = reconnectBufferSize;
+//		return this;
+//	}
 
 	/**
 	 * @param username for authentication
@@ -532,10 +573,10 @@ public class NatsConnectionProperties {
 	 * @param inboxPrefix custom prefix to use for request/reply inboxes
 	 * @return chainable properties
 	 */
-	public NatsConnectionProperties inboxPrefix(String inboxPrefix) {
-		this.inboxPrefix = inboxPrefix;
-		return this;
-	}
+//	public NatsConnectionProperties inboxPrefix(String inboxPrefix) {
+//		this.inboxPrefix = inboxPrefix;
+//		return this;
+//	}
 
 	/**
 	 * @param noEcho whether or not to send messages published by this connection back to it's subscribers
@@ -658,12 +699,12 @@ public class NatsConnectionProperties {
 		return factory.getTrustManagers();
 	}
 
-	protected SSLContext createSSLContext() throws IOException, GeneralSecurityException  {
-		SSLContext ctx = SSLContext.getInstance(Options.DEFAULT_SSL_PROTOCOL);
-		ctx.init(this.createKeyManagers(this.keyStorePath, this.keyStorePassword, this.keyStoreType),
-					this.createTrustManagers(this.trustStorePath, this.trustStorePassword, this.trustStoreType), new SecureRandom());
-		return ctx;
-	}
+//	protected SSLContext createSSLContext() throws IOException, GeneralSecurityException  {
+//		SSLContext ctx = SSLContext.getInstance(Options.DEFAULT_SSL_PROTOCOL);
+//		ctx.init(this.createKeyManagers(this.keyStorePath, this.keyStorePassword, this.keyStoreType),
+//					this.createTrustManagers(this.trustStorePath, this.trustStorePassword, this.trustStoreType), new SecureRandom());
+//		return ctx;
+//	}
 
 	/**
 	 * @return NATS options based on this set of properties
@@ -682,57 +723,68 @@ public class NatsConnectionProperties {
 	public Options.Builder toOptionsBuilder()  throws IOException, GeneralSecurityException  {
 		Options.Builder builder = new Options.Builder();
 
-		builder = builder.server(this.server);
-		builder = builder.maxReconnects(this.maxReconnect);
-		builder = builder.reconnectWait(this.reconnectWait);
-		builder = builder.connectionTimeout(this.connectionTimeout);
-		builder = builder.connectionName(this.connectionName);
-		builder = builder.pingInterval(this.pingInterval);
-		builder = builder.reconnectBufferSize(this.reconnectBufferSize);
-		builder = builder.inboxPrefix(this.inboxPrefix);
+		builder = builder.natsUrl(this.natsUrl);
+		builder = builder.clusterId(this.clusterId);
+		builder = builder.clientId(this.clientId);
+		//builder = builder.server(this.server);
+		//builder = builder.maxReconnects(this.maxReconnect);
+		//builder = builder.reconnectWait(this.reconnectWait);
+		//builder = builder.connectionTimeout(this.connectionTimeout);
+		//builder = builder.connectionName(this.connectionName);
+		//builder = builder.pingInterval(this.pingInterval);
+		//builder = builder.reconnectBufferSize(this.reconnectBufferSize);
+		//builder = builder.inboxPrefix(this.inboxPrefix);
 
-		if (this.noEcho) {
-			builder = builder.noEcho();
-		}
-
-		if (this.utf8Support) {
-			builder = builder.supportUTF8Subjects();
-		}
-
-		if (this.credentials != null && this.credentials.length() > 0) {
-			builder = builder.authHandler(Nats.credentials(this.credentials));
-		}
-		else if (this.token != null && this.token.length() > 0) {
-			builder = builder.token(this.token);
-		}
-		else if (this.username != null && this.username.length() > 0) {
-			builder = builder.userInfo(this.username, this.password);
-		}
-
-		if (this.keyStorePath != null && this.keyStorePath.length() > 0 &&
-			this.trustStorePath != null && this.trustStorePath.length() > 0) {
-			builder.sslContext(this.createSSLContext());
-		}
+//		if (this.noEcho) {
+//			builder = builder.noEcho();
+//		}
+//
+//		if (this.utf8Support) {
+//			builder = builder.supportUTF8Subjects();
+//		}
+//
+//		if (this.credentials != null && this.credentials.length() > 0) {
+//			builder = builder.authHandler(Nats.credentials(this.credentials));
+//		}
+//		else if (this.token != null && this.token.length() > 0) {
+//			builder = builder.token(this.token);
+//		}
+//		else if (this.username != null && this.username.length() > 0) {
+//			builder = builder.userInfo(this.username, this.password);
+//		}
+//
+//		if (this.keyStorePath != null && this.keyStorePath.length() > 0 &&
+//			this.trustStorePath != null && this.trustStorePath.length() > 0) {
+//			builder.sslContext(this.createSSLContext());
+//		}
 
 		return builder;
 	}
 
+//	@Override
+//	public String toString() {
+//		return "{" +
+//		" server='" + getServer() + "'," +
+//		" name='" + getConnectionName() + "'," +
+//		" maxReconnect='" + getMaxReconnect() + "'," +
+//		" reconnectWait='" + getReconnectWait() + "'," +
+//		" connectionTimeout='" + getConnectionTimeout() + "'," +
+//		" pingInterval='" + getPingInterval() + "'," +
+//		" reconnectBufferSize='" + getReconnectBufferSize() + "'," +
+//		" noEcho='" + getNoEcho() + "'," +
+//		" utf8='" + getUtf8Support() + "'," +
+//		" user='" + getUsername() + "'," +
+//		" password='" + getPassword() + "'," +
+//		" token='" + getToken() + "'," +
+//		" creds='" + getCredentials() + "'," +
+//			"}";
+
 	@Override
 	public String toString() {
 		return "{" +
-		" server='" + getServer() + "'," +
-		" name='" + getConnectionName() + "'," +
-		" maxReconnect='" + getMaxReconnect() + "'," +
-		" reconnectWait='" + getReconnectWait() + "'," +
-		" connectionTimeout='" + getConnectionTimeout() + "'," +
-		" pingInterval='" + getPingInterval() + "'," +
-		" reconnectBufferSize='" + getReconnectBufferSize() + "'," +
-		" noEcho='" + getNoEcho() + "'," +
-		" utf8='" + getUtf8Support() + "'," +
-		" user='" + getUsername() + "'," +
-		" password='" + getPassword() + "'," +
-		" token='" + getToken() + "'," +
-		" creds='" + getCredentials() + "'," +
-			"}";
+				"natsUrl='" + getNatsUrl() + "'," +
+				"clusterId='" + getClusterId() + "'," +
+				"clientId='" + getClientId() + "'," +
+				"}";
 	}
 }

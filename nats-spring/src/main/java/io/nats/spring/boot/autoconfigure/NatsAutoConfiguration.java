@@ -23,8 +23,10 @@ import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.client.Consumer;
 import io.nats.client.ErrorListener;
-import io.nats.client.Nats;
-import io.nats.client.Options;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
+import io.nats.streaming.StreamingConnection;
+import io.nats.streaming.StreamingConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,7 +39,7 @@ import org.springframework.context.annotation.Bean;
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for NATS.
  */
-@ConditionalOnClass({ Connection.class })
+@ConditionalOnClass({ StreamingConnection.class })
 @EnableConfigurationProperties(NatsProperties.class)
 /**
  * NatsAutoConfiguration will create a NATS connection from an instance of NatsProperties.
@@ -54,8 +56,8 @@ public class NatsAutoConfiguration {
 	 * @throws InterruptedException in the unusual case of a thread interruption during connect
 	 * @throws GeneralSecurityException if there is a problem authenticating the connection
 	 */
-	public Connection natsConnection(NatsProperties properties) throws IOException, InterruptedException, GeneralSecurityException {
-		Connection nc = null;
+	public StreamingConnection natsConnection(NatsProperties properties) throws IOException, InterruptedException, GeneralSecurityException {
+		StreamingConnection nc = null;
 		String serverProp = (properties != null) ? properties.getServer() : null;
 
 		if (serverProp == null || serverProp.length() == 0) {
@@ -89,7 +91,7 @@ public class NatsAutoConfiguration {
 				}
 			});
 
-			nc = Nats.connect(builder.build());
+			nc = NatsStreaming.connect(builder.getClusterID(), builder.getClientId(), builder.build());
 		}
 		catch (Exception e) {
 			logger.info("error connecting to nats", e);

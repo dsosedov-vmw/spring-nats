@@ -16,11 +16,15 @@
 
 package io.nats.cloud.stream.binder;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 
-import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import io.nats.streaming.StreamingConnection;
+import io.nats.streaming.SubscriptionOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,12 +45,12 @@ public class NatsMessageProducer implements MessageProducer, Lifecycle {
 	public static final String SUBJECT = "subject";
 
 	/**
-	 * If an incoming message has a reply to subject, that will be stored in the REPLY_TO header for propogation to the NatsMessageSource.
+	 * If an incoming message has a reply to subject, that will be stored in the REPLY_TO header for propagation to the NatsMessageSource.
 	 */
 	public static final String REPLY_TO = "reply_to";
 
 	private NatsConsumerDestination destination;
-	private Connection connection;
+	private StreamingConnection connection;
 	private MessageChannel output;
 	private Dispatcher dispatcher;
 
@@ -56,7 +60,7 @@ public class NatsMessageProducer implements MessageProducer, Lifecycle {
 	 * @param destination where to subscribe
 	 * @param nc NATS connection
 	 */
-	public NatsMessageProducer(NatsConsumerDestination destination, Connection nc) {
+	public NatsMessageProducer(NatsConsumerDestination destination, StreamingConnection nc) {
 		this.destination = destination;
 		this.connection = nc;
 	}
@@ -73,33 +77,33 @@ public class NatsMessageProducer implements MessageProducer, Lifecycle {
 
 	@Override
 	public boolean isRunning() {
-		return this.dispatcher != null;
+		return true; //this.dispatcher != null;
 	}
 
 	@Override
 	public void start() {
-		if (this.dispatcher != null) {
-			return;
-		}
-
-		this.dispatcher = this.connection.createDispatcher((msg) -> {
-
-			if (this.output == null) {
-				logger.warn("skipping message, no output channel set for " + this.destination.getName());
-				return;
-			}
-
-			try {
-				Map<String, Object> headers = new HashMap<>();
-				headers.put(SUBJECT, msg.getSubject());
-				headers.put(REPLY_TO, msg.getReplyTo());
-				GenericMessage<byte[]> m = new GenericMessage<byte[]>(msg.getData(), headers);
-				this.output.send(m);
-			}
-			catch (Exception e) {
-				logger.warn("exception sending message to output channel", e);
-			}
-		});
+//		if (this.dispatcher != null) {
+//			return;
+//		}
+//
+//		this.dispatcher = this.connection.getNatsConnection().createDispatcher((msg) -> {
+//
+//			if (this.output == null) {
+//				logger.warn("skipping message, no output channel set for " + this.destination.getName());
+//				return;
+//			}
+//
+//			try {
+//				Map<String, Object> headers = new HashMap<>();
+//				headers.put(SUBJECT, msg.getSubject());
+//				headers.put(REPLY_TO, msg.getReplyTo());
+//				GenericMessage<byte[]> m = new GenericMessage<byte[]>(msg.getData(), headers);
+//				this.output.send(m);
+//			}
+//			catch (Exception e) {
+//				logger.warn("exception sending message to output channel", e);
+//			}
+//		});
 
 		String sub = this.destination.getSubject();
 		String queue = this.destination.getQueueGroup();
@@ -108,7 +112,16 @@ public class NatsMessageProducer implements MessageProducer, Lifecycle {
 			this.dispatcher.subscribe(sub, queue);
 		}
 		else {
-			this.dispatcher.subscribe(sub);
+			//this.dispatcher.subscribe(sub);
+			try {
+				this.connection.subscribe(sub, new NatsStreamingMessageHandler("dataOut", this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -118,7 +131,7 @@ public class NatsMessageProducer implements MessageProducer, Lifecycle {
 			return;
 		}
 
-		this.connection.closeDispatcher(this.dispatcher);
+		//this.connection.getNatsConnection().closeDispatcher(this.dispatcher);
 		this.dispatcher = null;
 	}
 }

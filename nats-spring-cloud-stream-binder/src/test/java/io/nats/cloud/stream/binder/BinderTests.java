@@ -165,7 +165,7 @@ public class BinderTests {
                 assertFalse(producer.isRunning());
                 producer.start();
                 assertTrue(producer.isRunning());
-                binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
+                //binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
 
                 conn.publish(in, theMessage.getBytes(StandardCharsets.UTF_8));
                 conn.flush(Duration.ofSeconds(5));
@@ -220,7 +220,7 @@ public class BinderTests {
 
                 producer.start();
                 producer2.start();
-                binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
+                //binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
 
                 int total = 100;
 
@@ -270,7 +270,7 @@ public class BinderTests {
                 assertFalse(src.isRunning());
                 src.start();
                 assertTrue(src.isRunning());
-                binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
+                //binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
                 
                 CompletableFuture<String> received = new CompletableFuture<>();
 
@@ -325,7 +325,7 @@ public class BinderTests {
                 assertFalse(src.isRunning());
                 src.start();
                 assertTrue(src.isRunning());
-                binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
+                //binder.getConnection().flush(Duration.ofSeconds(5));// get the subscription out there
                 
                 CompletableFuture<String> received = new CompletableFuture<>();
 

@@ -20,13 +20,15 @@ import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.client.Consumer;
 import io.nats.client.ErrorListener;
-import io.nats.client.Nats;
-import io.nats.client.Options;
 import io.nats.cloud.stream.binder.properties.NatsBinderConfigurationProperties;
 import io.nats.cloud.stream.binder.properties.NatsConsumerProperties;
 import io.nats.cloud.stream.binder.properties.NatsExtendedBindingProperties;
 import io.nats.cloud.stream.binder.properties.NatsProducerProperties;
 import io.nats.spring.boot.autoconfigure.NatsProperties;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
+import io.nats.streaming.StreamingConnection;
+import io.nats.streaming.StreamingConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -51,7 +53,7 @@ public class NatsChannelBinder extends
 	private final NatsExtendedBindingProperties bindingProperties;
 	private NatsBinderConfigurationProperties properties;
 	private NatsProperties natsProperties;
-	private Connection connection;
+	private StreamingConnection connection;
 
 	/**
 	 * Create a binder with the specified properties. It is expected that either the NatsBinderConfigurationProperties will have a
@@ -82,19 +84,19 @@ public class NatsChannelBinder extends
 			String globalServer = (this.natsProperties != null) ? this.natsProperties.getServer() : null;
 
 			// Use the binder properties first, if they don't have a server, try the global
-			if (bindingServer != null && bindingServer.length() > 0) {
-				logger.info("binder connecting to nats with named properties " + this.properties);
-				builder = this.properties.toOptionsBuilder();
-			}
-			else if (globalServer != null && globalServer.length() > 0) {
-				logger.info("binder connecting to nats with global properties " + this.natsProperties);
+//			if (bindingServer != null && bindingServer.length() > 0) {
+//				logger.info("binder connecting to nats with named properties " + this.properties);
+//				builder = this.properties.toOptionsBuilder();
+//			}
+//			else if (globalServer != null && globalServer.length() > 0) {
+//				logger.info("binder connecting to nats with global properties " + this.natsProperties);
 				builder = this.natsProperties.toOptionsBuilder();
-			}
-			else {
-				this.connection = null;
-				logger.info("unable to connect from binder to NATS no server properties where found");
-				return;
-			}
+//			}
+//			else {
+//				this.connection = null;
+//				logger.info("unable to connect from binder to NATS no server properties were found");
+//				return;
+//			}
 
 			if (connectionListener != null) {
 				builder = builder.connectionListener(connectionListener);
@@ -129,7 +131,7 @@ public class NatsChannelBinder extends
 				});
 			}
 
-			this.connection = Nats.connect(builder.build());
+			this.connection = NatsStreaming.connect(builder.getClusterID(), builder.getClientId(), builder.build());
 		}
 		catch (Exception e) {
 			logger.info("exception connecting binder to NATS", e);
@@ -144,7 +146,7 @@ public class NatsChannelBinder extends
 	/**
 	 * @return NATS connection
 	 */
-	public Connection getConnection() {
+	public StreamingConnection getConnection() {
 		return this.connection;
 	}
 

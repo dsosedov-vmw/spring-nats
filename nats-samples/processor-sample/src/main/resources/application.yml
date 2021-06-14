@@ -11,4 +11,6 @@ spring:
 
 nats:
   spring:
-    server: nats://localhost:4222
+    nats-url: nats://localhost:4222
+    cluster-id: test-cluster
+    client-id: spring-nats-processor-sample

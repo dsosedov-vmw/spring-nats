@@ -16,10 +16,13 @@
 
 package io.nats.cloud.stream.binder;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
 
 import io.nats.client.Connection;
+import io.nats.streaming.StreamingConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -34,14 +37,14 @@ public class NatsMessageHandler extends AbstractMessageHandler {
 	private static final Log logger = LogFactory.getLog(NatsMessageHandler.class);
 
 	private String subject;
-	private Connection connection;
+	private StreamingConnection connection;
 
 	/**
 	 * Create a handler with a specific, unchanging subject, and a NATS connection.
 	 * @param subject where to send message to by default
 	 * @param nc NATS connection
 	 */
-	public NatsMessageHandler(String subject, Connection nc) {
+	public NatsMessageHandler(String subject, StreamingConnection nc) {
 		this.subject = subject;
 		this.connection = nc;
 	}
@@ -78,7 +81,15 @@ public class NatsMessageHandler extends AbstractMessageHandler {
 		String subj = replyTo != null ? replyTo : this.subject;
 
 		if (this.connection != null && subj != null && subj.length() > 0) {
-			this.connection.publish(subj, bytes);
+			try {
+				this.connection.publish(subj, bytes);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

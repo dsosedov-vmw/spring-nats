@@ -16,13 +16,16 @@
 
 package io.nats.cloud.stream.binder;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
-import io.nats.client.Connection;
 import io.nats.client.Message;
-import io.nats.client.Subscription;
+import io.nats.streaming.StreamingConnection;
+import io.nats.streaming.Subscription;
+import io.nats.streaming.SubscriptionOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,7 +40,7 @@ public class NatsMessageSource extends AbstractMessageSource<Object> implements 
 	private static final Log logger = LogFactory.getLog(NatsMessageHandler.class);
 
 	private NatsConsumerDestination destination;
-	private Connection connection;
+	private StreamingConnection connection;
 	private Subscription sub;
 
 	/**
@@ -47,7 +50,7 @@ public class NatsMessageSource extends AbstractMessageSource<Object> implements 
 	 * @param destination where to subscribe
 	 * @param nc NATS connection
 	 */
-	public NatsMessageSource(NatsConsumerDestination destination, Connection nc) {
+	public NatsMessageSource(NatsConsumerDestination destination, StreamingConnection nc) {
 		this.destination = destination;
 		this.connection = nc;
 	}
@@ -58,20 +61,22 @@ public class NatsMessageSource extends AbstractMessageSource<Object> implements 
 			return null;
 		}
 
-		try {
-			Message m = this.sub.nextMessage(Duration.ZERO);
+		logger.info("doReceive called...");
 
-			if (m != null) {
-				Map<String, Object> headers = new HashMap<>();
-				headers.put(NatsMessageProducer.SUBJECT, m.getSubject());
-				headers.put(NatsMessageProducer.REPLY_TO, m.getReplyTo());
-				GenericMessage<byte[]> gm = new GenericMessage<byte[]>(m.getData(), headers);
-				return gm;
-			}
-		}
-		catch (InterruptedException exp) {
-			logger.info("wait for message interrupted");
-		}
+//		try {
+//			Message m = this.sub.nextMessage(Duration.ZERO);
+//
+//			if (m != null) {
+//				Map<String, Object> headers = new HashMap<>();
+//				headers.put(NatsMessageProducer.SUBJECT, m.getSubject());
+//				headers.put(NatsMessageProducer.REPLY_TO, m.getReplyTo());
+//				GenericMessage<byte[]> gm = new GenericMessage<byte[]>(m.getData(), headers);
+//				return gm;
+//			}
+//		}
+//		catch (InterruptedException exp) {
+//			logger.info("wait for message interrupted");
+//		}
 
 		return null;
 	}
@@ -90,11 +95,19 @@ public class NatsMessageSource extends AbstractMessageSource<Object> implements 
 		String sub = this.destination.getSubject();
 		String queue = this.destination.getQueueGroup();
 
-		if (queue != null && queue.length() > 0) {
-			this.sub = this.connection.subscribe(sub, queue);
-		}
-		else {
-			this.sub = this.connection.subscribe(sub);
+		try {
+			if (queue != null && queue.length() > 0) {
+				this.sub = this.connection.subscribe(sub, queue, new NatsStreamingMessageHandler(sub, this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
+			}
+			else {
+				this.sub = this.connection.subscribe(sub, new NatsStreamingMessageHandler(sub, this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -104,7 +117,11 @@ public class NatsMessageSource extends AbstractMessageSource<Object> implements 
 			return;
 		}
 
-		this.sub.unsubscribe();
+		try {
+			this.sub.unsubscribe();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		this.sub = null;
 	}
 
