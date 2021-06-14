@@ -19,9 +19,12 @@ package io.nats.spring;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.messaging.Sink;
+import org.springframework.integration.annotation.Transformer;
 
 @EnableBinding(Sink.class)
 public class Listener {
