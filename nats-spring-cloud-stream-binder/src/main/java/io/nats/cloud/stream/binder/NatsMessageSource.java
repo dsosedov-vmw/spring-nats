@@ -95,20 +95,20 @@ public class NatsMessageSource extends AbstractMessageSource<Object> implements 
 		String sub = this.destination.getSubject();
 		String queue = this.destination.getQueueGroup();
 
-		try {
-			if (queue != null && queue.length() > 0) {
-				this.sub = this.connection.subscribe(sub, queue, new NatsStreamingMessageHandler(sub, this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
-			}
-			else {
-				this.sub = this.connection.subscribe(sub, new NatsStreamingMessageHandler(sub, this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			if (queue != null && queue.length() > 0) {
+//				this.sub = this.connection.subscribe(sub, queue, new NatsStreamingMessageHandler(sub, this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
+//			}
+//			else {
+//				this.sub = this.connection.subscribe(sub, new NatsStreamingMessageHandler(sub, this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		} catch (TimeoutException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override

@@ -30,7 +30,10 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.Lifecycle;
 import org.springframework.integration.core.MessageProducer;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.support.GenericMessage;
 
 /**
@@ -82,46 +85,22 @@ public class NatsMessageProducer implements MessageProducer, Lifecycle {
 
 	@Override
 	public void start() {
-		if (this.dispatcher != null) {
-			return;
-		}
-
-		this.dispatcher = this.connection.getNatsConnection().createDispatcher((msg) -> {
-
-			if (this.output == null) {
-				logger.warn("skipping message, no output channel set for " + this.destination.getName());
-				return;
-			}
-
-			try {
-				Map<String, Object> headers = new HashMap<>();
-				headers.put(SUBJECT, msg.getSubject());
-				headers.put(REPLY_TO, msg.getReplyTo());
-				GenericMessage<byte[]> m = new GenericMessage<byte[]>(msg.getData(), headers);
-				this.output.send(m);
-			}
-			catch (Exception e) {
-				logger.warn("exception sending message to output channel", e);
-			}
-		});
-
 		String sub = this.destination.getSubject();
 		String queue = this.destination.getQueueGroup();
 
-		if (queue != null && queue.length() > 0) {
-			this.dispatcher.subscribe(sub, queue);
-		}
-		else {
-			this.dispatcher.subscribe(sub);
-//			try {
-//				this.connection.subscribe(sub, new NatsStreamingMessageHandler("dataOut", this.connection), new SubscriptionOptions.Builder().deliverAllAvailable().build());
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			} catch (TimeoutException e) {
-//				e.printStackTrace();
-//			}
+		try {
+			if (queue != null && queue.length() > 0) {
+				this.connection.subscribe(sub, queue, new NatsStreamingMessageHandler(this.output), new SubscriptionOptions.Builder().deliverAllAvailable().build());
+			}
+			else {
+				this.connection.subscribe(sub, new NatsStreamingMessageHandler(this.output), new SubscriptionOptions.Builder().deliverAllAvailable().build());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -5,59 +5,34 @@ import io.nats.streaming.MessageHandler;
 import io.nats.streaming.StreamingConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.GenericMessage;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
+
+import static io.nats.cloud.stream.binder.NatsMessageProducer.REPLY_TO;
+import static io.nats.cloud.stream.binder.NatsMessageProducer.SUBJECT;
 
 public class NatsStreamingMessageHandler implements MessageHandler {
     private static final Log logger = LogFactory.getLog(NatsStreamingMessageHandler.class);
 
-    private String subject;
-    private StreamingConnection connection;
+    private MessageChannel output;
 
-    public NatsStreamingMessageHandler(String subject, StreamingConnection nc) {
-        this.subject = subject;
-        this.connection = nc;
+    public NatsStreamingMessageHandler(MessageChannel output) {
+        this.output = output;
     }
 
     @Override
     public void onMessage(Message message) {
-        Object payload = message.getData();
-        byte[] bytes = null;
-
-        if (payload instanceof byte[]) {
-            bytes = (byte[]) payload;
-        }
-        else if (payload instanceof ByteBuffer) {
-            ByteBuffer buf = ((ByteBuffer) payload);
-            bytes = new byte[buf.remaining()];
-            buf.get(bytes);
-        }
-        else if (payload instanceof String) {
-            bytes = ((String) payload).getBytes(StandardCharsets.UTF_8);
-        }
-
-        if (bytes == null) {
-            logger.warn("NATS handler only supports byte array, byte buffer and string messages");
-            return;
-        }
-
-        //Object rt = message.getReplyTo();
-        String replyTo = message.getReplyTo(); //rt != null ? rt.toString() : null;
-        String subj = replyTo != null && !replyTo.isEmpty() ? replyTo : this.subject;
-
-        if (this.connection != null && subj != null && subj.length() > 0) {
-            try {
-                this.connection.publish(subj, bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (TimeoutException e) {
-                e.printStackTrace();
-            }
-        }
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(SUBJECT, message.getSubject());
+        headers.put(REPLY_TO, message.getReplyTo());
+        GenericMessage<byte[]> m = new GenericMessage<byte[]>(message.getData(), headers);
+        this.output.send(m);
     }
 }
